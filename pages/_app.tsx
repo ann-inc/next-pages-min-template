@@ -1,24 +1,33 @@
-import "@mantine/core/styles.css";
+import { useEffect } from "react";
+import { JssProvider } from "react-jss";
 import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
-import { theme } from "../theme";
-import { MantineEmotionProvider, emotionTransform } from "@mantine/emotion";
-import { emotionCache } from "../emotion/cache";
+import { createGenerateId } from "jss";
 
-export default function App({ Component, pageProps }: any) {
+export default function App(props: { Component: any; pageProps: any }) {
+  const { Component, pageProps } = props;
+
+  useEffect(() => {
+    const jssStyles = document.getElementById("mantine-ssr-styles");
+    if (jssStyles && jssStyles.parentElement) {
+      jssStyles.parentElement.removeChild(jssStyles);
+    }
+  }, []);
+
   return (
-    <MantineEmotionProvider cache={emotionCache}>
-      <MantineProvider theme={theme} stylesTransform={emotionTransform}>
+    <>
+      <JssProvider generateId={createGenerateId({ minify: true })}>
         <Head>
-          <title>Mantine Template</title>
+          <title>Mantine next example</title>
           <meta
             name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
+            content="minimum-scale=1, initial-scale=1, width=device-width"
           />
-          <link rel="shortcut icon" href="/favicon.svg" />
         </Head>
-        <Component {...pageProps} />
-      </MantineProvider>
-    </MantineEmotionProvider>
+        <MantineProvider>
+          <Component {...pageProps} />
+        </MantineProvider>
+      </JssProvider>
+    </>
   );
 }
